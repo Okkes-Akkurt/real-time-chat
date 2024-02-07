@@ -1,70 +1,133 @@
-# Getting Started with Create React App
+# Real-Time-Chat
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bu uygulama, kullanıcıların gerçek zamanlı olarak birbirleriyle iletişim kurmasını sağlayan basit ve etkili bir chat uygulamasıdır. Hem sunucu (server) tarafında yazılmış bir Express uygulaması hem de istemci (client) tarafında React kullanılarak geliştirilmiştir. Ayrıca, sunucu ve istemciler arasındaki iletişimi sağlamak için Socket.IO kullanılmıştır.
 
-## Available Scripts
+## Temel Özellikler:
 
-In the project directory, you can run:
+1. Kullanıcı Girişi ve Odaya Katılım :
+- Kullanıcılar, giriş ekranında kendilerine bir kullanıcı adı ve oda adı belirleyerek uygulamaya katılır.
+- Her oda, kullanıcılar arasında ayrı bir iletişim ortamı oluşturur.
 
-### `npm start`
+2. Gerçek Zamanlı Sohbet:
+- Kullanıcılar, belirledikleri odada gerçek zamanlı olarak mesajlaşabilir.
+- Mesajlar, anlık olarak diğer kullanıcılara iletilir ve ekran üzerinde görüntülenir.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. Kullanıcı Tanıma:
+- Her kullanıcının kendine özgü bir kullanıcı adı vardır. Mesajlar, kullanıcı adlarıyla birlikte gösterilir.
+- Kullanıcılar, mesajları ve katılımcıları kolayca tanıyabilirler.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+4. Kullanıcı Arayüzü:
+- React ve Tailwind CSS kullanılarak oluşturulan arayüz, kullanıcı dostu ve şık bir görünüm sunar.
+- Giriş ekranı ve sohbet ekranı, kullanıcıların kolayca etkileşimde bulunmasını sağlar.
 
-### `npm test`
+5. Gerekli Kurumlar
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+5.1. **Frontend**
 
-### `npm run build`
+```npx create-react-app /yourfolder```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+``` npm i socket.io-client```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+[Tailwind CSS installation ](https://tailwindcss.com/docs/installation)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+5.2. **Backend**
 
-### `npm run eject`
+```npx create-react-app /yourfolder```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+``` npm i cors express socket.io```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## İstemci Tarafı (React Uygulaması):
 
-## Learn More
+**React** kullanılarak modern bir kullanıcı arayüzü oluşturuldu.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**useState** hook'u kullanılarak bileşenler arasında durum yönetimi sağlandı.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+**Room.js** bileşeni, kullanıcıdan alınan bilgileri kullanarak sunucuya bağlantı kurdu ve sohbet ekranına yönlendirdi.Kullanıcıdan alınan kullanıcı adı ve oda adıyla sunucuya katılım sağlar.
 
-### Code Splitting
+```javascript
+const sendRoom = () => {
+		socket.emit('room',room)
+		setChatScreen(true)
+	};
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+**Chat.js** bileşeni, kullanıcının sohbet ettiği ana bileşen olarak görev yaptı. Socket.IO olaylarını dinleyerek, gelen mesajları yönetti.
 
-### Analyzing the Bundle Size
+```javascript
+useEffect(() => {
+		socket.on('messageReturn', (data) => {
+			setMessageList((prev) => [...prev, data]);
+		});
+	}, [socket]);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+    //Component'in oluşturulması veya güncellenmesi durumunda sunucudan gelen mesajları dinler.
+```
 
-### Making a Progressive Web App
+```javascript
+const sendMesage = async () => {
+    const messageContent = {
+        username: username,
+        message: message,
+        room: room,
+        date: new Date().getHours() + ':' + new Date().getMinutes(),
+    };
+    await socket.emit('message', messageContent);
+    setMessageList((prev) => [...prev, messageContent]);
+    setMessage('');
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
+//Kullanıcının girdiği mesajı alır, sunucuya ileterek diğer istemcilere gönderir.
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Tailwind CSS ile hızlı ve ölçeklenebilir bir tasarım oluşturuldu.
 
-### Deployment
+**Socket.IO Client (io.connect):**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+**socket.io-client** modülü kullanılarak istemci tarafında sunucuya bağlantı kuruldu.
+Bağlantı adresi "http://localhost:5000" olarak belirlendi.
 
-### `npm run build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Sunucu Tarafı (server.js):
+
+**express** kullanılarak hızlı ve minimal bir web sunucusu oluşturuldu.
+
+**cors** middleware'i, Cross-Origin Resource Sharing'i etkinleştirmek için kullanıldı.Bu, farklı domainlerden gelen isteklere izin verir.
+
+**http** modülü kullanılarak basit bir HTTP sunucusu başlatıldı.
+
+**socket.io** modülü, gerçek zamanlı iletişim sağlamak üzere sunucu ve istemci arasında bir WebSocket bağlantısı kurdu.
+
+- Sunucu, http.createServer ile oluşturulan bir HTTP sunucusu üzerinden çalışıyor.socket.io kullanılarak oluşturulan io nesnesi ile sunucu ve istemciler arasında gerçekleşen olayları yönetiyor.
+
+```javascript
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:3000',
+        methods:['GET','POST']
+    }
+});
+```
+
+**io.on('connection')** ile istemcilerin bağlantılarını dinleyerek, her yeni bağlantı için bir **socket** nesnesi oluşturuldu.
+```javascript
+io.on('connection', (socket) => {
+    console.log('socket.id : ', socket.id);
+
+    socket.on('room', (data) => {
+        socket.join(data)
+    })
+
+    socket.on('message', (data) => {
+        socket.to(data.room).emit('messageReturn',data)
+    })
+});
+```
+
+**socket.on('room')** ile istemcilerin belirli bir odaya katılmasını sağlayan bir olay tanımlandı.
+
+**socket.on('message')** ile istemciden gelen mesajları alarak, aynı odadaki diğer istemcilere iletilmesi sağlandı.
